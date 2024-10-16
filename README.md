@@ -13,9 +13,10 @@
 </p>
 
 # 🔎 Detalhes sobre o projeto 🔎
-This project provides a concise and straightforward example of how a database-connected API operates with a separate backend. It demonstrates how Express.js routes are structured to interact with the database, retrieving and displaying data. Additionally, it shows how to seamlessly send and receive data between the frontend and backend using forms in React, offering a clear illustration of full-stack data flow.
+Esse projeto visa criar uma estrutura de CRUD usando JS e TS.
 
-# 📋 Requirements 📋
+# 📋 Requisitos 📋
 - Node.js
 - Typescript
-- mysql
+- Express
+- Bootstrap

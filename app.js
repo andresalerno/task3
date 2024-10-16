@@ -64,24 +64,28 @@ app.get('/tarefa/nova', function(req, res) {
 
 // Rota que recebe os dados da tarefa e a adiciona à lista
 app.post('/tarefa', function(req, res) {
-    var tarefaDescricao = req.body.tarefa.descricao.trim().toLowerCase(); //Normaliza a entrada
+    var tarefaDescricao = req.body.tarefa.descricao.trim().toLowerCase();
 
     // Verifica se o status é enviado como string e converte para booleano
-    var status = req.body.tarefa.status === 'true';         // trnasforma 'true'/'false' em booleano
+    var status = req.body.tarefa.status === 'true';
 
-    // Analisa se a tarefa já existe
+    // Verifica se a tarefa já existe
     if (tarefas.some(t => t.descricao.toLowerCase() === tarefaDescricao)) {
-        // se verdadeiro direciona para a página principal com uma mensagem, exemplo: "Tarefa já existente!"
-        res.send('Tarefa já existe!')
+        // Retorna uma mensagem de erro se a tarefa já existe, com status 400
+        return res.status(400).json({ message: 'Tarefa já existe!' });
     } else {
+        // Adiciona a nova tarefa
         tarefas.push({
-            descricao: req.body.tarefa.descricao,   // descrição original
-            status: status         // status enviado pelo formulário
+            descricao: req.body.tarefa.descricao,
+            status: status
         });
-        res.redirect('/');
+        // Retorna uma mensagem de sucesso, com status 201
+        return res.status(201).json({ message: 'Tarefa adicionada com sucesso!' });
     }
-
 });
+
+
+
 
 // Rota que exibe o formulário para editar uma tarefa existente
 app.get('/tarefa/:id/editar', function(req, res) {
@@ -91,29 +95,34 @@ app.get('/tarefa/:id/editar', function(req, res) {
 
 // Rota que recebe os dados editados da tarefa e atualiza na lista
 app.post('/tarefa/:id/editar', function(req, res) {
-    var id = req.params.id;
+    var id = parseInt(req.params.id);
     var novaDescricao = req.body.tarefa.descricao.trim().toLowerCase();
+    var status = req.body.tarefa.status === 'true';  // Transformando a string em booleano
 
-    // Verifica se o status é enviado como string e converte para booleano
-    var status = req.body.tarefa.status === 'true';  // Transforma 'true'/'false' em booleano
-
-    if (tarefas.some((t, index) => t.descricao.toLowerCase() === novaDescricao && index != id)) {
-        res.send('Já existe uma tarefa com esse mesmo nome editado');
+    if (tarefas.some((t, index) => t.descricao.toLowerCase() === novaDescricao && index !== id)) {
+        return res.status(400).json({ message: 'Já existe uma tarefa com esse mesmo nome editado' });
     } else {
         tarefas[id].descricao = req.body.tarefa.descricao;
         tarefas[id].status = status;
-        res.redirect('/');
+        return res.status(200).json({ message: 'Tarefa editada com sucesso!' });
     }
 });
 
 // Rota que exclui uma tarefa da lista
 app.post('/tarefa/:id/excluir', function(req, res) {
-    var id = req.params.id;
+    var id = parseInt(req.params.id); // Certifique-se de que o ID é um número
+    console.log(`Tentando excluir a tarefa com ID: ${id}`);
+
     if (id >= 0 && id < tarefas.length) {
         tarefas.splice(id, 1);
+        console.log(`Tarefa ${id} excluída com sucesso.`);
+        return res.status(200).json({ message: 'Tarefa excluída com sucesso!' }); // Mensagem de sucesso
+    } else {
+        console.log(`Tarefa ${id} não encontrada.`);
+        return res.status(404).json({ message: 'Tarefa não encontrada!' }); // Mensagem de erro
     }
-    res.redirect('/');
 });
+
 
 app.listen(3000, function() {
     console.log("Servidor rodando na porta 3000");
